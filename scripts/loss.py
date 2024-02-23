@@ -1,5 +1,5 @@
 import keras.backend as K
-from .settings import S, B, C
+from .settings import B, C, IMG_SIZE
 from .utils import yolo_head, xywh2minmax, iou
 
 def yolo_loss(y_true, y_pred):
@@ -48,8 +48,8 @@ def yolo_loss(y_true, y_pred):
     box_mask = K.expand_dims(box_mask)
     response_mask = K.expand_dims(response_mask)
 
-    box_loss = 5 * box_mask * response_mask * K.square((label_xy - predict_xy) / 448)
-    box_loss += 5 * box_mask * response_mask * K.square((K.sqrt(label_wh) - K.sqrt(predict_wh)) / 448)
+    box_loss = 5 * box_mask * response_mask * K.square((label_xy - predict_xy) / IMG_SIZE[0])
+    box_loss += 5 * box_mask * response_mask * K.square((K.sqrt(label_wh) - K.sqrt(predict_wh)) / IMG_SIZE[0])
     box_loss = K.sum(box_loss)
 
     loss = confidence_loss + class_loss + box_loss

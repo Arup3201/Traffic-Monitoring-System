@@ -1,0 +1,11 @@
+S = 7
+B = 2
+C = 5
+BATCH_SIZE = 4
+IMG_SIZE = (448, 448)
+DATA_DIR = '.data'
+TRAIN_ANNOTATIONS = '.data/json_annotations/train_annotations.json'
+VAL_ANNOTATIONS = '.data/json_annotations/val_annotations.json'
+MODEL_DIR = 'model'
+MODEL_WEIGHTS = 'yolov1.h5'
+EPOCHS = 2

@@ -42,11 +42,10 @@ def save_json(json_object, filename):
 if __name__=="__main__":
     dirs = ['bus', 'car', 'motorbike', 'pedestrian', 'truck']
     annotation_file = '_annotations.txt'
-    class_labels = {'car': 0, 'bus': 1, 'truck': 2, 'motorbike': 3, 'pedestrian': 4}
 
-    train_annotations = generate_json(os.path.join(BASE_PATH, '.data'), dirs, dataset_type='train', annot_filename=annotation_file, class_labels=class_labels)
-    val_annotations = generate_json(os.path.join(BASE_PATH, '.data'), dirs, dataset_type='valid', annot_filename=annotation_file, class_labels=class_labels)
-    test_annotations = generate_json(os.path.join(BASE_PATH, '.data'), dirs, dataset_type='test', annot_filename=annotation_file, class_labels=class_labels)
+    train_annotations = generate_json(os.path.join(BASE_PATH, '.data'), dirs, dataset_type='train', annot_filename=annotation_file, class_labels=CLASS2ID)
+    val_annotations = generate_json(os.path.join(BASE_PATH, '.data'), dirs, dataset_type='valid', annot_filename=annotation_file, class_labels=CLASS2ID)
+    test_annotations = generate_json(os.path.join(BASE_PATH, '.data'), dirs, dataset_type='test', annot_filename=annotation_file, class_labels=CLASS2ID)
 
     print(f"Training images and labels present: {len(train_annotations)}")
     print(f"Validation images and labels present: {len(val_annotations)}")

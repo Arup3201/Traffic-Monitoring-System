@@ -4,9 +4,9 @@ from .utils import yolo_head, xywh2minmax
 import os
 import cv2 as cv
 import keras.backend as K
+import tensorflow as tf
 
-def detection(img, threshold=0.70):
-    # img = cv.imdecode(img, cv.IMREAD_COLOR)
+def detect(img):
     img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
     img = cv.resize(img, IMG_SIZE)
     img = img / 255.
@@ -24,14 +24,6 @@ def detection(img, threshold=0.70):
     _predict_box = K.reshape(predict_box, [-1, 7, 7, 2, 4])
 
     predict_xy, predict_wh = yolo_head(_predict_box) # ? * 7 * 7 * 2 * 2, ? * 7 * 7 * 2 * 2
+    predict_class = K.expand_dims(predict_class, axis=3)
 
-    box_mask = K.cast(predict_trust>=threshold, K.dtype(predict_xy)) # ? * 7 * 7 * 2
-    box_mask = K.expand_dims(box_mask, axis=4) # ? * 7 * 7 * 2 * 1
-    predict_xy = K.max(box_mask * predict_xy, axis=4) # ? * 7 * 7 * 2
-    predict_wh = K.max(box_mask * predict_wh, axis=4) # ? * 7 * 7 * 2
-    predict_class = K.argmax(predict_class, axis=-1) # ? * 7 * 7
-    predict_class = K.expand_dims(predict_class, axis=3) # ? * 7 * 7 * 1
-
-    predict_xy_min, predict_xy_max = xywh2minmax(predict_xy, predict_wh) # ? * 7 * 7 * 2, ? * 7 * 7 * 2
-
-    return predict_xy_min, predict_xy_max, predict_class # ? * 7 * 7 * 2, ? * 7 * 7 * 2, ? * 7 * 7 * 1
+    return predict_xy, predict_wh, predict_trust, predict_class # ? * 7 * 7 * 2 * 2, ? * 7 * 7 * 2 * 2, ? * 7 * 7 * 2, ? * 7 * 7 * 5

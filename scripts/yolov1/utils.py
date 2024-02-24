@@ -2,7 +2,23 @@ import numpy as np
 import cv2 as cv
 import joblib
 import keras.backend as K
-from .settings import S, B, C, IMG_SIZE
+from .settings import *
+
+def hex_to_bgr(hex_color):
+  """Converts a hexadecimal color code to a BGR tuple.
+
+  Args:
+    hex_color: A hexadecimal color code, such as '#FFFFFF'.
+
+  Returns:
+    A tuple of three integers representing the BGR values of the color.
+  """
+
+  hex_color = hex_color.lstrip('#')
+  r = int(hex_color[0:2], 16)
+  g = int(hex_color[2:4], 16)
+  b = int(hex_color[4:6], 16)
+  return (b, g, r)
 
 def read_json(filename):
     json = joblib.load(filename)
@@ -81,3 +97,39 @@ def yolo_head(feats):
     box_wh = feats[..., 2:4] * 448
 
     return box_xy, box_wh
+
+def get_detection_data(xy, wh, scores, labels):
+    detections = {'bboxes': [], 'classes': [], 'scores': []}
+
+    xy, wh, scores, labels = xy[0, ...], wh[0, ...], scores[0, ...], labels[0, ...]
+
+    for box_id in range(B):
+        for r in range(S):
+            for c in range(S):
+                if(scores[r, c, box_id] >= THRESHOLD):
+                    x, y, w, h = xy[r, c, box_id, 0].numpy(), xy[r, c, box_id, 1].numpy(), wh[r, c, box_id, 0].numpy(), wh[r, c, box_id, 1].numpy()
+                    detections['bboxes'].append([x, y, w, h])
+                    label = np.argmax(labels[r, c, :])
+                    detections['classes'].append(ID2CLASS[label])
+                    detections['scores'].append(scores[r, c, box_id])
+
+    return detections
+
+def draw_boxes(img, detections):
+    scale = max(img.shape[0:2]) / IMG_SIZE[0]
+
+    for bbox, label, score in zip(detections['bboxes'], detections['classes'], detections['scores']):
+        x, y, w, h = bbox
+        x1 = int(x - w//2)
+        y1 = int(y - h//2)
+        x2 = int(x + w//2)
+        y2 = int(y + h//2)
+        cv.rectangle(img, (x1, y1), (x2, y2), color=hex_to_bgr(COLOR_TABLE[label]), thickness=BOX_THICKNESS)
+
+        text = f'{label} {score:.2f}'
+        font = cv.FONT_HERSHEY_DUPLEX
+        font_scale = max(0.3*scale, 0.3)
+        thickness = max(int(1 * scale), 1)
+        cv.putText(img, text, (x1, y1), font, font_scale, (255, 255, 255), thickness, cv.LINE_AA)
+
+    return img

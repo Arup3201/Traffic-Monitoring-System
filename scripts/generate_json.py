@@ -1,8 +1,6 @@
 import os
 import joblib
-
-CURR_PATH = os.path.dirname(os.path.realpath(__file__))
-BASE_PATH = os.path.join(CURR_PATH, os.pardir)
+from yolov1.settings import *
 
 def generate_json(folder_path, folders, dataset_type, annot_filename, class_labels):
     json_annotations = []

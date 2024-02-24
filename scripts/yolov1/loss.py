@@ -1,5 +1,5 @@
 import keras.backend as K
-from .settings import B, C, IMG_SIZE
+from .settings import *
 from .utils import yolo_head, xywh2minmax, iou
 
 def yolo_loss(y_true, y_pred):

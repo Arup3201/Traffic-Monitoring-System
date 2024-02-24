@@ -2,6 +2,7 @@ import numpy as np
 import cv2 as cv
 import joblib
 import keras.backend as K
+import tensorflow as tf
 from .settings import *
 
 def hex_to_bgr(hex_color):
@@ -115,15 +116,37 @@ def get_detection_data(xy, wh, scores, labels):
 
     return detections
 
-def draw_boxes(img, detections):
-    scale = max(img.shape[0:2]) / IMG_SIZE[0]
+def non_max_suppression(detections):
+    bboxes = detections['bboxes']
+    scores = detections['scores']
 
-    for bbox, label, score in zip(detections['bboxes'], detections['classes'], detections['scores']):
+    boxes = []
+    for bbox in bboxes:
         x, y, w, h = bbox
         x1 = int(x - w//2)
         y1 = int(y - h//2)
         x2 = int(x + w//2)
         y2 = int(y + h//2)
+
+        boxes.append([y1, x1, y2, x2])
+    
+    best_boxes = tf.image.non_max_suppression(boxes, scores, iou_threshold=IOU_THRESHOLD, max_output_size=MAX_BOXES)
+
+    return best_boxes, boxes
+
+def draw_boxes(img, boxes, best_boxes, scores, labels):
+    scale = max(img.shape[0:2]) / IMG_SIZE[0]
+    img_h, img_w = img.shape[0:2]
+
+    for box_id in best_boxes:
+        box = boxes[box_id]
+
+        y1, x1, y2, x2 = box
+        # x1, y1, x2, y2 = int(x1 / IMG_SIZE[1] * img_w), int(y1 / IMG_SIZE[0] * img_h),  int(x2 / IMG_SIZE[1] * img_w), int(y2 / IMG_SIZE[0] * img_h)
+
+        score = scores[box_id]
+        label = labels[box_id]
+
         cv.rectangle(img, (x1, y1), (x2, y2), color=hex_to_bgr(COLOR_TABLE[label]), thickness=BOX_THICKNESS)
 
         text = f'{label} {score:.2f}'

@@ -3,7 +3,7 @@ import os
 S = 7
 B = 2
 C = 5
-BATCH_SIZE = 4
+BATCH_SIZE = 16
 IMG_SIZE = (448, 448)
 DATA_DIR = '.data'
 TRAIN_ANNOTATIONS = '.data/json_annotations/train_annotations.json'

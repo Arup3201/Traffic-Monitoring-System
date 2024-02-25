@@ -10,8 +10,8 @@ from yolov1.train import CustomLearningRateScheduler, lr_schedule
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser('help in how to train the model and set parameters.')
-    parser.add_argument('-e', '--epoch', 'set epochs for training the model')
-    parser.add_argument('-b', '--batch', 'set the batch size')
+    parser.add_argument('-e', '--epoch', help='set epochs for training the model')
+    parser.add_argument('-b', '--batch', help='set the batch size')
     args = vars(parser.parse_args())
     
     epochs = int(args['epoch'])

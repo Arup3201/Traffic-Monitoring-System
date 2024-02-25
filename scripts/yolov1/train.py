@@ -1,12 +1,5 @@
-import os
-from .utils import read_json
-from .settings import TRAIN_ANNOTATIONS, VAL_ANNOTATIONS, BATCH_SIZE, DATA_DIR
-from .data import YoloDataset
-from .model import yolov1, pretrained_yolov1
 import tensorflow as tf
-from keras.callbacks import ModelCheckpoint
-from .settings import MODEL_DIR, MODEL_WEIGHTS, EPOCHS
-from .loss import yolo_loss
+
 
 class CustomLearningRateScheduler(tf.keras.callbacks.Callback):
     def __init__(self, schedule):
@@ -41,34 +34,3 @@ def lr_schedule(epoch, lr):
         if epoch == LR_SCHEDULE[i][0]:
             return LR_SCHEDULE[i][1]
     return lr
-
-if __name__=="__main__":
-    train_annotations = read_json(TRAIN_ANNOTATIONS)
-    val_annotations = read_json(VAL_ANNOTATIONS)
-
-    train_gen = YoloDataset(train_annotations, BATCH_SIZE, DATA_DIR)
-    val_gen = YoloDataset(val_annotations, BATCH_SIZE, DATA_DIR)
-
-    model = pretrained_yolov1()
-
-    if not os.path.exists(MODEL_DIR):
-        os.makedirs(MODEL_DIR)
-
-    mcp_save = ModelCheckpoint(os.path.join(MODEL_DIR, MODEL_WEIGHTS),
-                            save_best_only=True,
-                            monitor='val_loss',
-                            mode='min')
-
-    model.compile(loss=yolo_loss, optimizer='adam')
-
-    model.fit(
-        x=train_gen,
-        steps_per_epoch=len(train_annotations)//BATCH_SIZE,
-        epochs=EPOCHS,
-        validation_data=val_gen,
-        validation_steps=len(val_annotations)//BATCH_SIZE,
-        callbacks=[
-            CustomLearningRateScheduler(lr_schedule),
-            mcp_save
-        ]
-    )

@@ -4,7 +4,7 @@ import cv2 as cv
 import keras.backend as K
 from yolov1.inference import detect
 from yolov1.utils import get_detection_data, draw_boxes, non_max_suppression
-from yolov1.settings import BASE_PATH
+from yolov1.settings import *
 import matplotlib.pyplot as plt
 import tensorflow as tf
 

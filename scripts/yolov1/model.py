@@ -3,7 +3,7 @@ from keras import Sequential
 from keras.layers import Dense, Conv2D, MaxPooling2D, Dropout, Flatten
 import keras.backend as K
 from keras.regularizers import l2
-from .settings import S, B, C, IMG_SIZE
+from .settings import *
 
 
 class Yolo_Reshape(keras.layers.Layer):

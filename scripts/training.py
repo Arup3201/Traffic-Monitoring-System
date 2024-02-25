@@ -1,6 +1,6 @@
 import os
 import argparse
-from yolov1.settings import MODEL_DIR, MODEL_WEIGHTS, EPOCHS
+from yolov1.settings import *
 from yolov1.loss import yolo_loss
 from yolov1.utils import read_json
 from yolov1.settings import *

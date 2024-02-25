@@ -1,4 +1,4 @@
-import tensorflow as tf
+import keras
 from keras import Sequential
 from keras.layers import Dense, Conv2D, MaxPooling2D, Dropout, Flatten
 import keras.backend as K
@@ -6,7 +6,7 @@ from keras.regularizers import l2
 from .settings import S, B, C, IMG_SIZE
 
 
-class Yolo_Reshape(tf.keras.layers.Layer):
+class Yolo_Reshape(keras.layers.Layer):
   def __init__(self, target_shape):
     super(Yolo_Reshape, self).__init__()
     self.target_shape = tuple(target_shape)
@@ -39,7 +39,7 @@ class Yolo_Reshape(tf.keras.layers.Layer):
   
 
 def yolov1():
-    lrelu = tf.keras.layers.LeakyReLU(alpha=0.1)
+    lrelu = keras.layers.LeakyReLU(alpha=0.1)
 
     model = Sequential()
     model.add(Conv2D(filters=64, kernel_size= (7, 7), strides=(1, 1), input_shape =(IMG_SIZE[0], IMG_SIZE[1], 3), padding = 'same', activation=lrelu, kernel_regularizer=l2(5e-4)))
@@ -84,3 +84,24 @@ def yolov1():
     model.add(Yolo_Reshape(target_shape=(S, S, B*5+C)))
 
     return model
+
+def pretrained_yolov1():
+    pretrained_model = keras.applications.VGG19(include_top=False, 
+                                                weights="imagenet", 
+                                                input_shape=[IMG_SIZE[0], IMG_SIZE[1], 3])
+    
+    for layer in pretrained_model.layers:
+        layer.trainable = False
+
+    last_layer = pretrained_model.get_layer('block5_pool')
+    last_output = last_layer.output
+    
+    x = Flatten()(last_output)
+    x = Dense(512)(x)
+    x = Dense(1024)(x)
+    x = Dropout(0.5)(x)
+    x = Dense(S*S*(B*5+C), activation="sigmoid")(x)
+    x = Yolo_Reshape(target_shape=(S, S, B*5+C))(x)
+
+    model = keras.models.Model(pretrained_model.input, x)
+    return model  

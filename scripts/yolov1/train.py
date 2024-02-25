@@ -2,7 +2,7 @@ import os
 from .utils import read_json
 from .settings import TRAIN_ANNOTATIONS, VAL_ANNOTATIONS, BATCH_SIZE, DATA_DIR
 from .data import YoloDataset
-from .model import yolov1
+from .model import yolov1, pretrained_yolov1
 import tensorflow as tf
 from keras.callbacks import ModelCheckpoint
 from .settings import MODEL_DIR, MODEL_WEIGHTS, EPOCHS
@@ -49,7 +49,7 @@ if __name__=="__main__":
     train_gen = YoloDataset(train_annotations, BATCH_SIZE, DATA_DIR)
     val_gen = YoloDataset(val_annotations, BATCH_SIZE, DATA_DIR)
 
-    model = yolov1()
+    model = pretrained_yolov1()
 
     if not os.path.exists(MODEL_DIR):
         os.makedirs(MODEL_DIR)
